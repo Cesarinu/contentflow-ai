@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContentFlow AI - Gerador de Conteúdo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .auth-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-tab {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .content-tab.active {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .content-tab h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .content-tab p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .content-form {
+            display: none;
+        }
+
+        .content-form.active {
+            display: block;
+        }
+
+        .result-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .result-section h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .result-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .user-info {
+            background: #e8f4fd;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content-tabs {
+                flex-direction: column;
+            }
+
+            .content-tab {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ ContentFlow AI</h1>
+            <p>Gerador Inteligente de Conteúdo para Redes Sociais</p>
+        </div>
+
+        <!-- Seção de Autenticação -->
+        <div class="auth-section" id="authSection">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="showAuthTab('login')">Entrar</button>
+                <button class="auth-tab" onclick="showAuthTab('register')">Criar Conta</button>
+            </div>
+
+            <!-- Login -->
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label>Email ou Username:</label>
+                    <input type="text" id="loginUsername" placeholder="Digite seu email ou username">
+                </div>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="loginPassword" placeholder="Digite sua senha">
+                </div>
+                <button class="btn" onclick="login()">Entrar</button>
+            </div>
+
+            <!-- Registro -->
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label>Nome Completo:</label>
+                    <input type="text" id="registerName" placeholder="Seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="registerUsername" placeholder="Escolha um username">
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="registerEmail" placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="registerPassword" placeholder="Mínimo 8 caracteres">
+                </div>
+                <button class="btn" onclick="register()">Criar Conta</button>
+            </div>
+        </div>
+
+        <!-- Seção de Conteúdo -->
+        <div class="content-section" id="contentSection">
+            <div class="user-info" id="userInfo">
+                <h3>Bem-vindo!</h3>
+                <p>Uso mensal: <span id="monthlyUsage">0</span>/<span id="usageLimit">10</span></p>
+                <button class="btn" onclick="logout()" style="width: auto; margin-top: 1rem;">Sair</button>
+            </div>
+
+            <div class="content-tabs">
+                <div class="content-tab active" onclick="showContentTab('caption')">
+                    <h3>📝 Legendas</h3>
+                    <p>Gere legendas envolventes para seus posts</p>
+                </div>
+                <div class="content-tab" onclick="showContentTab('ideas')">
+                    <h3>💡 Ideias</h3>
+                    <p>Descubra novas ideias de conteúdo</p>
+                </div>
+                <div class="content-tab" onclick="showContentTab('hashtags')">
+                    <h3>#️⃣ Hashtags</h3>
+                    <p>Encontre hashtags relevantes</p>
+                </div>
+                <div class="content-tab" onclick="showContentTab('script')">
+                    <h3>🎬 Roteiros</h3>
+                    <p>Crie roteiros para vídeos</p>
+                </div>
+            </div>
+
+            <!-- Formulário de Legendas -->
+            <div class="content-form active" id="captionForm">
+                <div class="form-group">
+                    <label>Tópico da Legenda:</label>
+                    <input type="text" id="captionTopic" placeholder="Ex: Dicas de produtividade">
+                </div>
+                <div class="form-group">
+                    <label>Plataforma:</label>
+                    <select id="captionPlatform">
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tom:</label>
+                    <select id="captionTone">
+                        <option value="casual">Casual</option>
+                        <option value="professional">Profissional</option>
+                        <option value="funny">Divertido</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateCaption()">Gerar Legenda</button>
+            </div>
+
+            <!-- Formulário de Ideias -->
+            <div class="content-form" id="ideasForm">
+                <div class="form-group">
+                    <label>Palavras-chave:</label>
+                    <input type="text" id="ideasKeywords" placeholder="Ex: fitness, alimentação, treino">
+                </div>
+                <button class="btn" onclick="generateIdeas()">Gerar Ideias</button>
+            </div>
+
+            <!-- Formulário de Hashtags -->
+            <div class="content-form" id="hashtagsForm">
+                <div class="form-group">
+                    <label>Conteúdo:</label>
+                    <textarea id="hashtagsContent" rows="3" placeholder="Descreva seu conteúdo..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Plataforma:</label>
+                    <select id="hashtagsPlatform">
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="linkedin">LinkedIn</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="generateHashtags()">Gerar Hashtags</button>
+            </div>
+
+            <!-- Formulário de Roteiros -->
+            <div class="content-form" id="scriptForm">
+                <div class="form-group">
+                    <label>Tópico do Vídeo:</label>
+                    <input type="text" id="scriptTopic" placeholder="Ex: Como ser mais produtivo">
+                </div>
+                <button class="btn" onclick="generateScript()">Gerar Roteiro</button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Gerando conteúdo com IA...</p>
+            </div>
+
+            <!-- Resultado -->
+            <div class="result-section" id="resultSection">
+                <h3 id="resultTitle">Resultado:</h3>
+                <div class="result-content" id="resultContent"></div>
+                <button class="btn" onclick="copyResult()" style="width: auto; margin-top: 1rem;">Copiar Resultado</button>
+            </div>
+        </div>
+
+        <!-- Mensagens -->
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+    </div>
+
+    <script>
+        // Configuração da API
+        const API_BASE = 'https://contentflow-ai-production.up.railway.app/api';
+        let currentUser = null;
+        let authToken = null;
+
+        // Verificar se já está logado
+        window.onload = function() {
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('currentUser');
+            
+            if (token && user) {
+                authToken = token;
+                currentUser = JSON.parse(user);
+                showContentSection();
+            }
+        };
+
+        // Funções de UI
+        function showAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Form').classList.add('active');
+        }
+
+        function showContentTab(tab) {
+            document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-form').forEach(f => f.classList.remove('active'));
+            
+            event.target.closest('.content-tab').classList.add('active');
+            document.getElementById(tab + 'Form').classList.add('active');
+            
+            hideResult();
+        }
+
+        function showContentSection() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('contentSection').classList.add('active');
+            
+            if (currentUser) {
+                document.getElementById('userInfo').innerHTML = `
+                    <h3>Bem-vindo, ${currentUser.full_name || currentUser.username}!</h3>
+                    <p>Uso mensal: <span id="monthlyUsage">${currentUser.monthly_usage || 0}</span>/<span id="usageLimit">${currentUser.usage_limit || 10}</span></p>
+                    <button class="btn" onclick="logout()" style="width: auto; margin-top: 1rem;">Sair</button>
+                `;
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('active');
+            setTimeout(() => errorEl.classList.remove('active'), 5000);
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.classList.add('active');
+            setTimeout(() => successEl.classList.remove('active'), 3000);
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+            hideResult();
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+
+        function showResult(title, content) {
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultContent').textContent = content;
+            document.getElementById('resultSection').classList.add('active');
+        }
+
+        function hideResult() {
+            document.getElementById('resultSection').classList.remove('active');
+        }
+
+        // Funções de autenticação
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (!name || !username || !email || !password) {
+                showError('Preencha todos os campos');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('Senha deve ter pelo menos 8 caracteres');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        full_name: name,
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    showSuccess('Conta criada com sucesso!');
+                    showContentSection();
+                } else {
+                    showError(data.error || 'Erro ao criar conta');
+                }
+            } catch (error) {
+                showError('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showError('Preencha todos os campos');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    showSuccess('Login realizado com sucesso!');
+                    showContentSection();
+                } else {
+                    showError(data.error || 'Credenciais inválidas');
+                }
+            } catch (error) {
+                showError('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('contentSection').classList.remove('active');
+            
+            // Limpar formulários
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            hideResult();
+        }
+
+        // Funções de geração de conteúdo
+        async function generateCaption() {
+            const topic = document.getElementById('captionTopic').value;
+            const platform = document.getElementById('captionPlatform').value;
+            const tone = document.getElementById('captionTone').value;
+
+            if (!topic) {
+                showError('Digite um tópico para a legenda');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE}/content/generate/caption`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        topic: topic,
+                        platform: platform,
+                        tone: tone
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    showResult('Legenda Gerada:', data.caption);
+                    updateUsage();
+                } else {
+                    showError(data.error || 'Erro ao gerar legenda');
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        async function generateIdeas() {
+            const keywords = document.getElementById('ideasKeywords').value;
+
+            if (!keywords) {
+                showError('Digite palavras-chave para gerar ideias');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE}/content/generate/ideas`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        keywords: keywords
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    const ideasText = data.ideas.map((idea, index) => 
+                        `${index + 1}. ${idea.title}\n   ${idea.description}\n   Formato: ${idea.format}\n`
+                    ).join('\n');
+                    
+                    showResult('Ideias de Conteúdo:', ideasText);
+                    updateUsage();
+                } else {
+                    showError(data.error || 'Erro ao gerar ideias');
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        async function generateHashtags() {
+            const content = document.getElementById('hashtagsContent').value;
+            const platform = document.getElementById('hashtagsPlatform').value;
+
+            if (!content) {
+                showError('Descreva seu conteúdo para gerar hashtags');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE}/content/generate/hashtags`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        platform: platform
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    const hashtagsText = data.hashtags.map(tag => `#${tag}`).join(' ');
+                    showResult('Hashtags Geradas:', hashtagsText);
+                    updateUsage();
+                } else {
+                    showError(data.error || 'Erro ao gerar hashtags');
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        async function generateScript() {
+            const topic = document.getElementById('scriptTopic').value;
+
+            if (!topic) {
+                showError('Digite um tópico para o roteiro');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_BASE}/content/generate/script`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        topic: topic
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    const script = data.script;
+                    const scriptText = `GANCHO: ${script.hook}\n\nDESENVOLVIMENTO: ${script.development}\n\nCHAMADA PARA AÇÃO: ${script.cta}\n\nSUGESTÕES VISUAIS:\n${script.visual_suggestions?.join('\n') || 'Nenhuma sugestão disponível'}`;
+                    
+                    showResult('Roteiro de Vídeo:', scriptText);
+                    updateUsage();
+                } else {
+                    showError(data.error || 'Erro ao gerar roteiro');
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Erro de conexão. Tente novamente.');
+            }
+        }
+
+        function updateUsage() {
+            if (currentUser) {
+                currentUser.monthly_usage = (currentUser.monthly_usage || 0) + 1;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                document.getElementById('monthlyUsage').textContent = currentUser.monthly_usage;
+            }
+        }
+
+        function copyResult() {
+            const resultContent = document.getElementById('resultContent').textContent;
+            navigator.clipboard.writeText(resultContent).then(() => {
+                showSuccess('Resultado copiado para a área de transferência!');
+            }).catch(() => {
+                showError('Erro ao copiar. Selecione e copie manualmente.');
+            });
+        }
+    </script>
+</body>
+</html>
+
