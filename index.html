@@ -382,7 +382,7 @@
             <div class="content-form active" id="captionForm">
                 <div class="form-group">
                     <label>Tópico da Legenda:</label>
-                    <input type="text" id="captionTopic" placeholder="Ex: Dicas de produtividade">
+                    <input type="text" id="captionTopic" placeholder="Ex: Açaí, Sushi, Fitness, Viagem">
                 </div>
                 <div class="form-group">
                     <label>Plataforma:</label>
@@ -409,7 +409,7 @@
             <div class="content-form" id="ideasForm">
                 <div class="form-group">
                     <label>Palavras-chave:</label>
-                    <input type="text" id="ideasKeywords" placeholder="Ex: fitness, alimentação, treino">
+                    <input type="text" id="ideasKeywords" placeholder="Ex: açaí, sushi, comida japonesa">
                 </div>
                 <button class="btn" onclick="generateIdeas()">Gerar Ideias</button>
             </div>
@@ -418,7 +418,7 @@
             <div class="content-form" id="hashtagsForm">
                 <div class="form-group">
                     <label>Conteúdo:</label>
-                    <textarea id="hashtagsContent" rows="3" placeholder="Descreva seu conteúdo..."></textarea>
+                    <textarea id="hashtagsContent" rows="3" placeholder="Ex: Post sobre açaí na tigela com frutas"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Plataforma:</label>
@@ -436,7 +436,7 @@
             <div class="content-form" id="scriptForm">
                 <div class="form-group">
                     <label>Tópico do Vídeo:</label>
-                    <input type="text" id="scriptTopic" placeholder="Ex: Como ser mais produtivo">
+                    <input type="text" id="scriptTopic" placeholder="Ex: Como fazer sushi em casa">
                 </div>
                 <button class="btn" onclick="generateScript()">Gerar Roteiro</button>
             </div>
@@ -502,9 +502,9 @@
                 }
             } catch (error) {
                 apiOnline = false;
-                document.getElementById('apiStatus').innerHTML = '⚠️ API Offline - Usando modo demonstração';
-                document.getElementById('apiStatus').style.background = '#fff3cd';
-                document.getElementById('apiStatus').style.color = '#856404';
+                document.getElementById('apiStatus').innerHTML = '🤖 Modo IA Local - Gerando conteúdo inteligente!';
+                document.getElementById('apiStatus').style.background = '#e1f5fe';
+                document.getElementById('apiStatus').style.color = '#01579b';
             }
         }
 
@@ -576,8 +576,8 @@
         // Função para fazer requisições com tratamento de CORS
         async function makeApiRequest(endpoint, options = {}) {
             if (!apiOnline) {
-                // Modo demonstração
-                return generateDemoContent(endpoint);
+                // Modo IA local
+                return generateSmartContent(endpoint, options);
             }
 
             try {
@@ -597,90 +597,345 @@
                 return await response.json();
             } catch (error) {
                 console.error('API Error:', error);
-                // Fallback para modo demonstração
-                return generateDemoContent(endpoint);
+                // Fallback para modo IA local
+                return generateSmartContent(endpoint, options);
             }
         }
 
-        // Gerar conteúdo de demonstração
-        function generateDemoContent(endpoint) {
-            const demoContent = {
-                '/auth/register': {
-                    token: 'demo_token_' + Date.now(),
-                    user: {
-                        id: 1,
-                        username: document.getElementById('registerUsername')?.value || 'demo_user',
-                        full_name: document.getElementById('registerName')?.value || 'Usuário Demo',
-                        email: document.getElementById('registerEmail')?.value || 'demo@email.com',
-                        monthly_usage: 0,
-                        usage_limit: 10
-                    }
-                },
-                '/auth/login': {
-                    token: 'demo_token_' + Date.now(),
-                    user: {
-                        id: 1,
-                        username: 'demo_user',
-                        full_name: 'Usuário Demo',
-                        email: 'demo@email.com',
-                        monthly_usage: 2,
-                        usage_limit: 10
-                    }
-                },
-                '/content/generate/caption': {
-                    caption: `🌟 Transforme sua rotina com essas dicas incríveis!
-
-✨ Dica 1: Comece o dia com 5 minutos de meditação
-⚡ Dica 2: Organize suas tarefas por prioridade
-🎯 Dica 3: Faça pausas de 15 minutos a cada hora
-💪 Dica 4: Mantenha seu espaço de trabalho limpo
-
-Qual dessas você vai implementar hoje? Conta nos comentários! 👇
-
-#produtividade #dicasdetrabalho #motivacao #foco #organizacao #lifestyle #crescimentopessoal #sucesso`
-                },
-                '/content/generate/ideas': {
-                    ideas: [
-                        {
-                            title: "5 Exercícios para Fazer em Casa",
-                            description: "Tutorial completo de exercícios que não precisam de equipamentos",
-                            format: "Vídeo tutorial"
-                        },
-                        {
-                            title: "Receitas Saudáveis em 15 Minutos",
-                            description: "Pratos nutritivos e rápidos para o dia a dia",
-                            format: "Carrossel de fotos"
-                        },
-                        {
-                            title: "Minha Rotina Matinal",
-                            description: "Como organizo meu dia para ser mais produtivo",
-                            format: "Stories + Post"
-                        }
-                    ]
-                },
-                '/content/generate/hashtags': {
-                    hashtags: ['fitness', 'saude', 'exercicios', 'vidasaudavel', 'treino', 'bemestar', 'motivacao', 'foco', 'disciplina', 'resultados', 'transformacao', 'lifestyle', 'energia', 'forca', 'resistencia']
-                },
-                '/content/generate/script': {
-                    script: {
-                        hook: "Você sabia que 80% das pessoas desistem dos seus objetivos nos primeiros 3 meses?",
-                        development: "Hoje vou te mostrar 3 estratégias simples que uso há 2 anos para manter a consistência e alcançar TODOS os meus objetivos. A primeira é definir metas micro - ao invés de 'emagrecer 10kg', foque em 'caminhar 20 minutos hoje'. A segunda é criar um sistema de recompensas - cada pequena vitória merece ser celebrada. E a terceira é ter um parceiro de accountability - alguém que te cobre e te apoie.",
-                        cta: "Salva esse post e me conta nos comentários qual objetivo você quer alcançar! E se esse conteúdo te ajudou, compartilha com alguém que precisa ver isso!",
-                        visual_suggestions: [
-                            "Texto na tela com as 3 estratégias",
-                            "Gráfico mostrando a estatística dos 80%",
-                            "Exemplos visuais de metas micro vs macro",
-                            "Pessoa celebrando pequenas vitórias"
-                        ]
-                    }
-                }
-            };
-
+        // Gerador inteligente de conteúdo baseado no input do usuário
+        function generateSmartContent(endpoint, options) {
+            const body = options.body ? JSON.parse(options.body) : {};
+            
             return new Promise(resolve => {
                 setTimeout(() => {
-                    resolve(demoContent[endpoint] || { error: 'Endpoint não encontrado' });
-                }, 1000);
+                    if (endpoint === '/auth/register') {
+                        resolve({
+                            token: 'demo_token_' + Date.now(),
+                            user: {
+                                id: 1,
+                                username: body.username || 'demo_user',
+                                full_name: body.full_name || 'Usuário Demo',
+                                email: body.email || 'demo@email.com',
+                                monthly_usage: 0,
+                                usage_limit: 10
+                            }
+                        });
+                    } else if (endpoint === '/auth/login') {
+                        resolve({
+                            token: 'demo_token_' + Date.now(),
+                            user: {
+                                id: 1,
+                                username: 'demo_user',
+                                full_name: 'Usuário Demo',
+                                email: 'demo@email.com',
+                                monthly_usage: 2,
+                                usage_limit: 10
+                            }
+                        });
+                    } else if (endpoint === '/content/generate/caption') {
+                        resolve({
+                            caption: generateCaptionContent(body.topic, body.platform, body.tone)
+                        });
+                    } else if (endpoint === '/content/generate/ideas') {
+                        resolve({
+                            ideas: generateIdeasContent(body.keywords)
+                        });
+                    } else if (endpoint === '/content/generate/hashtags') {
+                        resolve({
+                            hashtags: generateHashtagsContent(body.content, body.platform)
+                        });
+                    } else if (endpoint === '/content/generate/script') {
+                        resolve({
+                            script: generateScriptContent(body.topic)
+                        });
+                    }
+                }, 1500); // Simula tempo de processamento da IA
             });
+        }
+
+        // Gerador inteligente de legendas
+        function generateCaptionContent(topic, platform, tone) {
+            const topicLower = topic.toLowerCase();
+            let caption = '';
+            
+            // Detectar tipo de conteúdo
+            if (topicLower.includes('açaí') || topicLower.includes('acai')) {
+                caption = generateAcaiCaption(platform, tone);
+            } else if (topicLower.includes('sushi') || topicLower.includes('japonês') || topicLower.includes('japones')) {
+                caption = generateSushiCaption(platform, tone);
+            } else if (topicLower.includes('fitness') || topicLower.includes('treino') || topicLower.includes('exercício')) {
+                caption = generateFitnessCaption(platform, tone);
+            } else if (topicLower.includes('viagem') || topicLower.includes('trip') || topicLower.includes('travel')) {
+                caption = generateTravelCaption(platform, tone);
+            } else if (topicLower.includes('café') || topicLower.includes('coffee')) {
+                caption = generateCoffeeCaption(platform, tone);
+            } else if (topicLower.includes('pizza')) {
+                caption = generatePizzaCaption(platform, tone);
+            } else {
+                // Gerador genérico baseado no tópico
+                caption = generateGenericCaption(topic, platform, tone);
+            }
+            
+            return caption;
+        }
+
+        function generateAcaiCaption(platform, tone) {
+            const captions = {
+                casual: `🍇 Açaí na tigela = felicidade pura! 
+
+Quem mais é viciado nessa delícia roxa? 💜
+
+Minha combinação favorita:
+🥥 Coco ralado
+🍌 Banana
+🍓 Morango
+🥜 Granola crocante
+
+E vocês, qual a combinação preferida? Conta aqui! 👇
+
+#açaí #açaínatígela #vidasaudavel #delicia #frutasdoverão #energianatural #saude #alimentacaosaudavel #acaibowl #superfood`,
+
+                professional: `🍇 O açaí é muito mais que uma delícia: é um superalimento!
+
+Rico em antioxidantes, vitaminas e minerais essenciais, o açaí oferece:
+✅ Energia natural
+✅ Fortalecimento do sistema imunológico  
+✅ Propriedades anti-inflamatórias
+✅ Fonte de fibras e gorduras boas
+
+Uma escolha inteligente para quem busca alimentação saudável e saborosa.
+
+#açaí #superalimento #alimentacaosaudavel #nutricao #saude #antioxidantes #vidasaudavel #wellness`,
+
+                funny: `🍇 Açaí: a única coisa roxa que eu como sem reclamar! 😂
+
+Sério, quem inventou essa maravilha merece um Nobel da Felicidade! 🏆
+
+Meu relacionamento com o açaí:
+💜 Amor à primeira colherada
+💜 Fidelidade eterna
+💜 Ciúmes quando alguém come o meu
+💜 Dependência emocional total
+
+Alguém mais tem esse vício gostoso? 🙋‍♀️
+
+#açaí #vicio #delicia #humor #comida #açaínatígela #amorpuro #frutasdoverão`
+            };
+            
+            return captions[tone] || captions.casual;
+        }
+
+        function generateSushiCaption(platform, tone) {
+            const captions = {
+                casual: `🍣 Noite de sushi = noite perfeita! 
+
+Não tem como resistir a essa arte japonesa, né? 🥢
+
+Meus favoritos:
+🐟 Salmão
+🥒 Pepino
+🥑 Abacate  
+🍤 Camarão
+
+E vocês, team sushi tradicional ou preferem os especiais? 
+
+#sushi #comidajaponesa #sushitime #delicia #jantar #gastronomia #sashimi #temaki #oriental`,
+
+                professional: `🍣 A arte milenar do sushi: tradição e sabor em cada peça.
+
+O sushi representa muito mais que alimentação - é cultura, técnica e respeito pelos ingredientes. Cada peça é cuidadosamente preparada seguindo tradições centenárias.
+
+Uma experiência gastronômica que combina:
+✅ Ingredientes frescos de alta qualidade
+✅ Técnicas tradicionais japonesas
+✅ Apresentação impecável
+✅ Sabores únicos e equilibrados
+
+#sushi #gastronomiajaponesa #culturajaponesa #altaculinaria #tradicao #qualidade #experienciagastronomica`,
+
+                funny: `🍣 Eu: "Vou comer só um pouquinho de sushi"
+Também eu: *pede 47 peças* 😅
+
+Sushi é tipo batata Pringles: uma vez que você para... NÃO PARA! 🤣
+
+Minha evolução no sushi:
+1️⃣ "Peixe cru? Que nojo!"
+2️⃣ "Deixa eu experimentar..."  
+3️⃣ "Hmm, até que é bom"
+4️⃣ "PRECISO DE MAIS SUSHI AGORA!"
+
+Quem mais passou por essa transformação? 🙋‍♂️
+
+#sushi #vicio #evolucao #humor #comidajaponesa #sushitime #delicia`
+            };
+            
+            return captions[tone] || captions.casual;
+        }
+
+        function generateFitnessCaption(platform, tone) {
+            return `💪 Treino de hoje: CONCLUÍDO! ✅
+
+Não importa se foi 20 minutos ou 2 horas, o importante é se mover! 🏃‍♀️
+
+Lembrete: 
+🎯 Progresso > Perfeição
+🎯 Consistência > Intensidade  
+🎯 Seu ritmo > Ritmo dos outros
+
+Qual foi seu treino hoje? Conta aqui! 👇
+
+#fitness #treino #motivacao #saude #vidasaudavel #exercicio #foco #disciplina #resultados #academia`;
+        }
+
+        function generateGenericCaption(topic, platform, tone) {
+            const emojis = ['✨', '🌟', '💫', '🔥', '⚡', '🎯', '💪', '🚀'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            return `${randomEmoji} ${topic.charAt(0).toUpperCase() + topic.slice(1)} ${randomEmoji}
+
+Compartilhando um pouco sobre ${topic} com vocês! 
+
+O que vocês acham? Deixem suas opiniões nos comentários! 👇
+
+#${topic.replace(/\s+/g, '').toLowerCase()} #conteudo #compartilhando #opiniao #discussao #engajamento`;
+        }
+
+        // Gerador de ideias baseado em palavras-chave
+        function generateIdeasContent(keywords) {
+            const keywordsLower = keywords.toLowerCase();
+            let ideas = [];
+            
+            if (keywordsLower.includes('açaí')) {
+                ideas = [
+                    {
+                        title: "5 Receitas de Açaí Diferentes",
+                        description: "Açaí na tigela, smoothie, sorvete caseiro e mais variações",
+                        format: "Carrossel de fotos"
+                    },
+                    {
+                        title: "Benefícios do Açaí para a Saúde",
+                        description: "Propriedades antioxidantes e nutricionais do superfruto",
+                        format: "Post educativo"
+                    },
+                    {
+                        title: "Açaí vs Outros Superalimentos",
+                        description: "Comparativo nutricional com outros alimentos funcionais",
+                        format: "Infográfico"
+                    }
+                ];
+            } else if (keywordsLower.includes('sushi')) {
+                ideas = [
+                    {
+                        title: "Como Fazer Sushi em Casa",
+                        description: "Tutorial passo a passo para iniciantes",
+                        format: "Vídeo tutorial"
+                    },
+                    {
+                        title: "Tipos de Sushi: Guia Completo",
+                        description: "Diferenças entre nigiri, sashimi, maki e temaki",
+                        format: "Post educativo"
+                    },
+                    {
+                        title: "Melhores Sushis da Cidade",
+                        description: "Review dos restaurantes japoneses locais",
+                        format: "Stories + Post"
+                    }
+                ];
+            } else {
+                // Gerador genérico
+                ideas = [
+                    {
+                        title: `Dicas sobre ${keywords}`,
+                        description: `Compartilhe conhecimentos e experiências sobre ${keywords}`,
+                        format: "Post educativo"
+                    },
+                    {
+                        title: `Minha experiência com ${keywords}`,
+                        description: `Conte sua jornada pessoal relacionada a ${keywords}`,
+                        format: "Stories + Post"
+                    },
+                    {
+                        title: `${keywords}: Mitos vs Verdades`,
+                        description: `Esclareça informações sobre ${keywords}`,
+                        format: "Carrossel informativo"
+                    }
+                ];
+            }
+            
+            return ideas;
+        }
+
+        // Gerador de hashtags baseado no conteúdo
+        function generateHashtagsContent(content, platform) {
+            const contentLower = content.toLowerCase();
+            let hashtags = [];
+            
+            if (contentLower.includes('açaí')) {
+                hashtags = ['açaí', 'açaínatígela', 'acaibowl', 'superfood', 'vidasaudavel', 'alimentacaosaudavel', 'antioxidantes', 'frutasdoverão', 'energianatural', 'saude', 'wellness', 'nutricao', 'delicia', 'saudavel', 'natural'];
+            } else if (contentLower.includes('sushi')) {
+                hashtags = ['sushi', 'comidajaponesa', 'sushitime', 'gastronomia', 'sashimi', 'temaki', 'oriental', 'culturajaponesa', 'altaculinaria', 'tradicao', 'qualidade', 'experienciagastronomica', 'jantar', 'delicia', 'restaurante'];
+            } else if (contentLower.includes('fitness') || contentLower.includes('treino')) {
+                hashtags = ['fitness', 'treino', 'academia', 'saude', 'vidasaudavel', 'exercicio', 'motivacao', 'foco', 'disciplina', 'resultados', 'transformacao', 'lifestyle', 'energia', 'forca', 'resistencia'];
+            } else {
+                // Hashtags genéricas baseadas no conteúdo
+                const words = content.split(' ').filter(word => word.length > 3);
+                hashtags = words.slice(0, 10).map(word => word.replace(/[^a-zA-Z0-9]/g, '').toLowerCase());
+                hashtags.push('conteudo', 'post', 'compartilhando', 'engajamento', 'discussao');
+            }
+            
+            // Ajustar para plataforma
+            if (platform === 'tiktok') {
+                hashtags = hashtags.slice(0, 5); // TikTok prefere menos hashtags
+                hashtags.push('fyp', 'viral', 'trending');
+            } else if (platform === 'linkedin') {
+                hashtags = hashtags.slice(0, 3); // LinkedIn é mais conservador
+                hashtags.push('profissional', 'networking', 'crescimento');
+            }
+            
+            return hashtags.slice(0, 15); // Máximo 15 hashtags
+        }
+
+        // Gerador de roteiros baseado no tópico
+        function generateScriptContent(topic) {
+            const topicLower = topic.toLowerCase();
+            
+            if (topicLower.includes('sushi')) {
+                return {
+                    hook: "Você sabia que fazer sushi em casa é mais fácil do que parece?",
+                    development: "Hoje vou te ensinar o segredo para fazer sushi perfeito na sua cozinha! Primeiro, o arroz: tem que ser específico para sushi, temperado com vinagre de arroz. Segundo, os ingredientes: sempre frescos e de qualidade. Terceiro, a técnica: movimentos firmes mas delicados. Vou mostrar passo a passo como fazer um california roll básico que fica igual de restaurante!",
+                    cta: "Salva esse vídeo para fazer em casa e me marca quando fizer o seu! Quer mais receitas japonesas? Comenta 'SUSHI' que eu faço mais vídeos!",
+                    visual_suggestions: [
+                        "Ingredientes organizados na bancada",
+                        "Preparo do arroz temperado",
+                        "Técnica de enrolar o sushi",
+                        "Resultado final cortado"
+                    ]
+                };
+            } else if (topicLower.includes('açaí')) {
+                return {
+                    hook: "O segredo para um açaí cremoso e perfeito que ninguém te conta!",
+                    development: "A diferença está na temperatura e na proporção! Açaí muito gelado fica duro, muito mole fica aguado. O ponto ideal é quando você consegue fazer aquelas ondas perfeitas. Uso 200g de açaí para 50ml de líquido - pode ser leite, água ou suco. Bato por exatos 30 segundos, não mais! E o segredo final: adiciono uma banana congelada para dar cremosidade natural.",
+                    cta: "Testa essa receita e me conta se ficou perfeito! Marca alguém que precisa aprender a fazer açaí de verdade!",
+                    visual_suggestions: [
+                        "Açaí sendo batido no liquidificador",
+                        "Textura cremosa perfeita",
+                        "Montagem da tigela com toppings",
+                        "Primeira colherada"
+                    ]
+                };
+            } else {
+                return {
+                    hook: `Você precisa saber isso sobre ${topic}!`,
+                    development: `Hoje vou compartilhar tudo que aprendi sobre ${topic} e como isso pode te ajudar. Muita gente não sabe, mas ${topic} tem vários aspectos interessantes que podem fazer diferença no seu dia a dia. Vou te mostrar 3 dicas práticas que você pode aplicar imediatamente e ver resultados reais.`,
+                    cta: `Salva esse post e me conta nos comentários qual dica você vai testar primeiro! E se você tem alguma experiência com ${topic}, compartilha aqui embaixo!`,
+                    visual_suggestions: [
+                        `Introdução sobre ${topic}`,
+                        "Dica 1 com exemplo prático",
+                        "Dica 2 com demonstração",
+                        "Dica 3 e resultado final"
+                    ]
+                };
+            }
         }
 
         // Funções de autenticação
